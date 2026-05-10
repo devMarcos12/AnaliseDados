@@ -85,4 +85,5 @@ def DownloadFiles():
         driver.quit()
         print(f"Arquivos salvos na pasta: {diretorio_atual}")
 
-DownloadFiles()
+if __name__ == "__main__":
+    DownloadFiles()
