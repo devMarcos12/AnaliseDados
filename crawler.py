@@ -18,7 +18,7 @@ prefs = {
 }
 chrome_options.add_experimental_option("prefs", prefs)
 
-driver = webdriver.Chrome(options=chrome_options)
+driver = webdriver.Chrome()
 
 def DownloadFiles():
     try:
@@ -59,7 +59,7 @@ def DownloadFiles():
         DownloadButton.click()
         time.sleep(5)
 
-        driver.execute_script("window.scrollBy(0, 1000);")
+        driver.execute_script("window.scrollBy(0, 600);")
         time.sleep(2)
         DownloadTableButton = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Download da tabela')]")))
         DownloadTableButton.click()
