@@ -1,5 +1,3 @@
 /venv
 /__pycache__
-base_futebol_integrada.csv
-mundo_transfermarkt_competicoes_brasileirao_serie_a.csv.gz
-mundo_transfermarkt_competicoes_copa_brasil.csv.gz
+dados_brasileirao/*
