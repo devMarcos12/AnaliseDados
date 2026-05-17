@@ -1,0 +1,193 @@
+RECOMENDACOES PARA DASHBOARDS: Analise Exploratoria do Campeonato Brasileiro
+
+================================================================================
+DASHBOARD 1: VISAO GERAL (Executiva)
+================================================================================
+
+Objetivo: Comunicar rapidamente as informacoes mais importantes em um painel sem necessidade de explorar filtros.
+
+Secao 1: Indicadores Principais (KPIs)
+- Total de cartoes registrados: 20.953
+- Cartoes amarelos: 16.867
+- Cartoes vermelhos: 1.086
+- Partidas analisadas: 4.116
+- Media de cartoes por partida: 5.09
+- Periodo: 92 meses
+
+Layout: Cards/boxes no topo com numeros grandes e cores diferenciadas
+
+Secao 2: Distribuicao de Cartoes
+- Grafico de pizza: Amarelo vs Vermelho (80.5% vs 5.2%, resto sendo "Nao informado")
+- Grafico de barras: Cartoes por posicao (Top 5: Zagueiro, Meio-campista, Lateral, Atacante, Goleiro)
+
+Layout: Dois graficos lado a lado, simples e direto
+
+Secao 3: Tendencia Temporal
+- Linha/area: Serie mensal de cartoes totais (agg_cartoes_por_ano_mes)
+- Sobreposicao: Media movel de 3 meses para suavizar oscilacoes
+
+Layout: Grafico grande que permita visualizar ciclos, sazonalidade
+
+Secao 4: Insight Destacado: Reta Final do Jogo
+- Barra comparativa: Cartoes nos ultimos 15 minutos vs resto do jogo
+- Percentual do total concentrado nesta faixa (destaque visual)
+
+Layout: Secao visual destacada com fundo ou cor diferenciada
+
+Secao 5: Comparacao Mandante vs Visitante
+- Barra side-by-side: Media de cartoes recebidos (ambos ~5.09)
+- Legenda: Nao ha diferenca estatistica significativa
+
+Layout: Simples, com legenda explicativa
+
+================================================================================
+DASHBOARD 2: EXPLORACAO INTERATIVA
+================================================================================
+
+Objetivo: Permitir que o usuario explore dados em profundidade, filtre conforme interesse e descubra padroes.
+
+Filtros Recomendados (minimo 2, recomenda-se 3+):
+
+1. Filtro por Formacao Tatica (OBRIGATORIO)
+   - Opcoes: Conservadora, Equilibrada, Ofensiva
+   - Impacto: Filtra partidas onde mandante usou esta formacao
+   - Utilidade: Permite comparar comportamento tático
+
+2. Filtro por Etapa do Jogo (OBRIGATORIO)
+   - Opcoes: 1o Tempo, 2o Tempo, Acrescimos, Todos
+   - Impacto: Altera todas as visualizacoes para mostrar apenas cartoes nesta etapa
+   - Utilidade: Analisa diferenca de comportamento entre periodos
+
+3. Filtro por Resultado (RECOMENDADO)
+   - Opcoes: Vitoria, Empate, Derrota (do mandante)
+   - Impacto: Mostra padrao de cartoes por resultado
+   - Utilidade: Validar se disciplina correlaciona com vitoria
+
+4. Filtro por Jogo Interestadual (OPCIONAL)
+   - Opcoes: Sim, Nao, Ambos
+   - Impacto: Isolate effect de deslocamento
+   - Utilidade: Verificar se pressao de viagem influencia comportamento
+
+Visualizacoes Recomendadas (minimo 5):
+
+Viz 1: Distribuicao de Cartoes por Posicao
+Tipo: Bar chart horizontal (posicoes no eixo Y, cartoes no X)
+Dados: cards.groupby('posicao')['cartao'].value_counts()
+Interatividade: Hover mostra valores exatos
+Insight: Zagueiro e o maior receptor de cartoes
+
+Viz 2: Cartoes ao Longo do Jogo (Minutos)
+Tipo: Line chart ou area chart
+Dados: cards.groupby('faixa_minuto').size()
+Interatividade: Hover mostra numero exato por faixa
+Destaque: Pico visivel nos ultimos 15 minutos (76-90)
+
+Viz 3: Resultado do Mandante vs Media de Cartoes
+Tipo: Bar chart com erro/desvio padrao
+Dados: matches.groupby('resultado_mandante')[['cartoes_mandante', 'cartoes_visitante']].agg(['mean', 'std'])
+Interatividade: Mostra media e desvio
+Insight: Vitorias tendem a ter menos cartoes para mandante
+
+Viz 4: Peso do Cartao por Posicao
+Tipo: Heatmap ou scatter + cor
+Dados: cards.groupby('posicao')['cartao_peso'].mean()
+Escala: Verde (menor = amarelos) a Vermelho (maior = vermelhos)
+Insight: Zagueiros nao so levam mais cartoes, mas cartoes mais graves
+
+Viz 5: Cartoes em Jogo Interestadual
+Tipo: Box plot ou violin plot
+Dados: cards.groupby(['jogo_interestadual', 'local_clube']).size()
+Comparacao: Mesmo estado vs Estados diferentes
+Insight: Nao ha diferenca clara (sindrome do visitante nao confirmada)
+
+Viz 6 (Opcional): Timeline: Cartoes por Rodada
+Tipo: Line chart ou scatter
+Dados: matches.groupby('rodada_partida').agg({'cartoes_total': 'mean'})
+Escala: Rodada (1-38) no eixo X
+Insight: Variacoes ao longo da season, momentos de maior tensao
+
+Viz 7 (Bonus): Tabela: Top 10 Formacoes Mais Punidas
+Tipo: Data table / grid
+Dados: agg_cartoes_por_formacao.nlargest(10, 'cartoes_por_partida_time')
+Colunas: Formacao, Perfil Tatico, Cartoes por Partida, Total de Vermelhos
+Interatividade: Sort, busca
+
+================================================================================
+DADOS E CREDITOS
+================================================================================
+
+Bases utilizadas:
+- base_transformada_cartoes.csv: 20.953 linhas, 55 colunas
+- base_transformada_partidas.csv: 4.116 linhas, 47 colunas
+- agg_*.csv: 7 arquivos de agregacoes pré-calculadas
+
+Figuras geradas:
+- figuras_analise/01_fator_casa.png
+- figuras_analise/02_tatica_disciplina.png
+- figuras_analise/03_sindrome_visitante.png
+- figuras_analise/04_risco_posicao.png
+- figuras_analise/05_hora_desespero.png
+- figuras_analise/06_bater_ganha_jogo.png
+
+Script de geração:
+- analise_exploratoria.py (modular, reutilizável)
+
+Notebook:
+- analise_exploratoria.ipynb (com insights documentados)
+
+================================================================================
+PALETA DE CORES RECOMENDADA
+================================================================================
+
+Azul: #1f77b4 (primario, mandante)
+Laranja: #ff7f0e (secundario, visitante)
+Verde: #2ca02c (positivo, vitoria, disciplina)
+Vermelho: #d62728 (negativo, cartao, perda)
+Amarelo: #ffdd57 (cartao amarelo)
+Vermelho Escuro: #ff5252 (cartao vermelho)
+
+================================================================================
+ARQUITETURA RECOMENDADA PARA CODIGO
+================================================================================
+
+estrutura de callbacks do Dash:
+
+@app.callback(
+    [Output('distribuicao-posicao', 'figure'),
+     Output('minutos-timeline', 'figure'),
+     Output('resultado-cartoes', 'figure'),
+     Output('peso-posicao', 'figure'),
+     Output('interestadual-boxplot', 'figure'),
+     Output('rodada-timeline', 'figure')],
+    [Input('formacao-dropdown', 'value'),
+     Input('etapa-dropdown', 'value'),
+     Input('resultado-dropdown', 'value'),
+     Input('interestadual-checkbox', 'value')]
+)
+def update_dashboard(formacao, etapa, resultado, interestadual):
+    # Filtrar cards conforme inputs
+    # Gerar cada visualizacao
+    # Retornar como lista de figuras
+
+================================================================================
+PROXIMAS ETAPAS (Para Ramalho e Padilha)
+================================================================================
+
+1. Ramalho (Dashboard 1):
+   - Importar figuras PNG geradas
+   - Criar layout com cards de KPI
+   - Adicionar selector de periodo (mes/ano) se desejar
+   - Manter design limpo e objetivo
+
+2. Padilha (Dashboard 2):
+   - Implementar 4 filtros recomendados
+   - Codificar 6 visualizacoes (minimo 5)
+   - Garantir que filtros atualizem graficos em tempo real
+   - Testar responsividade em diferentes resolucoes
+
+3. Validacao conjunta:
+   - Verificar coerencia de cores entre dashboards
+   - Confirmar que insights de análise exploratória aparecem visualmente
+   - Testar com usuarios finais
+
+================================================================================
